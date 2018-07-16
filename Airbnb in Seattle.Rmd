@@ -8,10 +8,10 @@ By Yiming Sun
 This exploration is based on a dataset that describes the listing activity of homestays in Seattle, WA , which could be found here:https://www.kaggle.com/airbnb/seattle
 
 After reading my analysis, you would have a better understanding of the airbnb industry in Seattle.
-If you are interested in becoming an airbnb host, you could also gain an insight on either how to become a "super host" or set the right price for your properties.
+If you are interested in becoming an airbnb host, you could also gain an insight on how to become a "super host" in Seattle.
 
 #Data Preparation
-The dataset size was 21MB with 3818 rows. I dropped some unrelevant columns before loading it here.
+The dataset size is 21MB with 3818 rows. I dropped some unrelevant columns before loading it here.
 ```{r}
 library(readr)
 listings <- read_csv('/Users/yimingsun/Desktop/r/listings.csv',na='.')
@@ -19,12 +19,11 @@ listings <- read_csv('/Users/yimingsun/Desktop/r/listings.csv',na='.')
 
 check and remove missing values
 ```{r}
-
 library(Amelia)
 missmap(listings[-1],col=c('grey','steelblue'),y.cex=0.5,x.cex=0.5)
 ```
 
-Remove the rows with missing values in variables that are important
+Remove the rows with missing values
 ```{r}
 listings=subset(listings, host_response_rate!="")
 listings=subset(listings, host_about!="")
@@ -33,7 +32,6 @@ listings=subset(listings, host_is_superhost!="")
 listings=subset(listings, bedrooms!="")
 listings=subset(listings, select=-c(review_scores_rating))#it seems that there are lots of missing values for the 'review_scores_rating' variable, and we might run into endogeneity issues to put it into the superhost regression. So we remove this variable here.
 ```
-
 
 I also need to check variability
 ```{r}
@@ -45,7 +43,6 @@ listings %>% ggplot() + geom_bar(aes(neighbourhood_group_cleansed))
 #all good here
 ```
 
-
 #Before we start explore the ways to become a superhost.Let's visualize the key words of Seattle's airbnb hosts and their property descriptions. Just for fun.
 install packages
 ```{r}
@@ -55,7 +52,6 @@ library(wordcloud)
 library(SnowballC)
 ```
 
-
 build a corpus for text mining
 ```{r}
 as.character(listings$host_about)
@@ -63,6 +59,7 @@ host=str_replace_all(listings$host_about,"[^[:alpha:]]", " ")
 corp <- Corpus(VectorSource(host))
 inspect(corp)
 ```
+
 clean and pre-process the text data
 ```{r}
 
@@ -75,17 +72,15 @@ corp<- tm_map(corp,removeWords, c("i","we","live","living","seattle","washington
 inspect(corp)
 ```
 
-
 Generate the spreadsheet representation of the documents.
 ```{r}
 tdm <- DocumentTermMatrix(corp)
 inspect(tdm)
 ```
 
-ready for the word cloud? I saw love seattle on the first sight.
+ready for the word cloud? I saw "love" on the first sight.
 ```{r}
 m <- as.matrix(tdm)
-
 # find out the importance of each term by summing up the tf-idf scores over the corpus
 importance <- data.frame(sort(colSums(m),decreasing=TRUE))
 set.seed(111)
@@ -117,7 +112,6 @@ test correlation between numeric variables
 str(train.df)
 train.df$host_response_rate<-as.numeric(gsub("\\%", "",train.df$host_response_rate))
 train.df$length<-as.numeric(train.df$length)
-
 test.var<-c(2,7,8,9,11)
 testdata<-train.df[test.var]
 cor(testdata)
@@ -159,7 +153,7 @@ names(train2.df$host_is_superhost)[2] <- "is_superhost"
 
 ```
 
-
+run the regression
 ```{r}
 model <- glm(train2.df$host_is_superhost~.,family=binomial,data=train2.df)
 summary(model)
