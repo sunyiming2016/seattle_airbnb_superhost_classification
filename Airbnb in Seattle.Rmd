@@ -5,19 +5,19 @@ output: pdf_document
 
 By Yiming Sun
 
-This exploration is based on a dataset that describes the listing activity of homestays in Seattle, WA , which could be found here:https://www.kaggle.com/airbnb/seattle
+Data source:https://www.kaggle.com/airbnb/seattle
 
-After reading my analysis, you would have a better understanding of the airbnb industry in Seattle.
-If you are interested in becoming an airbnb host, you could also gain an insight on how to become a "super host" in Seattle.
+If you are interested in becoming an airbnb host in Seattle, you would gain some insights on ways of becoming a "super host" with this analysis. The first part is a word cloud visualization of hosts introduction and the second part is a logistic regression model.
 
 #Data Preparation
 The dataset size is 21MB with 3818 rows. I dropped some unrelevant columns before loading it here.
+
 ```{r}
 library(readr)
 listings <- read_csv('/Users/yimingsun/Desktop/r/listings.csv',na='.')
 ```
 
-check and remove missing values
+check and visualize missing values
 ```{r}
 library(Amelia)
 missmap(listings[-1],col=c('grey','steelblue'),y.cex=0.5,x.cex=0.5)
@@ -30,10 +30,11 @@ listings=subset(listings, host_about!="")
 listings=subset(listings, bathrooms!="")
 listings=subset(listings, host_is_superhost!="")
 listings=subset(listings, bedrooms!="")
-listings=subset(listings, select=-c(review_scores_rating))#it seems that there are lots of missing values for the 'review_scores_rating' variable, and we might run into endogeneity issues to put it into the superhost regression. So we remove this variable here.
+listings=subset(listings, select=-c(review_scores_rating))
+#it seems that there are lots of missing values for the 'review_scores_rating' variable, and we might run into endogeneity issues to put it into the superhost regression. So we remove this variable here.
 ```
 
-I also need to check variability
+Check variability
 ```{r}
 library(tidyverse)
 library(ggplot2)
@@ -43,7 +44,7 @@ listings %>% ggplot() + geom_bar(aes(neighbourhood_group_cleansed))
 #all good here
 ```
 
-#Before we start explore the ways to become a superhost.Let's visualize the key words of Seattle's airbnb hosts and their property descriptions. Just for fun.
+#Before we start explore the ways to become a superhost.Let's visualize the key words of Seattle's airbnb hosts. Just for fun.
 install packages
 ```{r}
 library(tm)
@@ -62,7 +63,6 @@ inspect(corp)
 
 clean and pre-process the text data
 ```{r}
-
 corp <- tm_map(corp, removeNumbers)
 corp<- tm_map(corp, removePunctuation)
 corp <- tm_map(corp, stripWhitespace) 
@@ -85,7 +85,6 @@ m <- as.matrix(tdm)
 importance <- data.frame(sort(colSums(m),decreasing=TRUE))
 set.seed(111)
 wordcloud(rownames(importance), importance[,1], max.words=200, random.order=FALSE, rot.per=0.35,colors=brewer.pal(8, "Dark2"))
-
 ```
 
 ##Let's use logistic regression to explore the key elements of becoming a super host in Seattle
@@ -99,6 +98,18 @@ View(length)
 listings<-cbind(listings,length)
 ```
 
+transform the data type
+```{r}
+str(train.df)
+listings$host_response_rate<-as.numeric(gsub("\\%", "",listings$host_response_rate))
+listings$length<-as.numeric(listings$length)
+listings$host_response_time<-as.factor(listings$host_response_time)
+listings$neighbourhood_group_cleansed<-as.factor(listings$neighbourhood_group_cleansed)
+listings$property_type<-as.factor(listings$property_type)
+listings$room_type<-as.factor(listings$room_type)
+listings$cancellation_policy<-as.factor(listings$cancellation_policy)
+```
+
 select predicting variables
 ```{r}
 select.var <-c(8,9,10,11,15,16,17,18,19,22,23)
@@ -108,10 +119,6 @@ train.df <- listings[train.index, select.var]
 
 test correlation between numeric variables
 ```{r}
-#let's transform the data type first
-str(train.df)
-train.df$host_response_rate<-as.numeric(gsub("\\%", "",train.df$host_response_rate))
-train.df$length<-as.numeric(train.df$length)
 test.var<-c(2,7,8,9,11)
 testdata<-train.df[test.var]
 cor(testdata)
@@ -122,27 +129,17 @@ train.index2 <- sample(1:nrow(listings), 0.7*nrow(listings))
 train2.df <- listings[train.index, select.var2]
 valid2.df <- listings[-train.index,select.var2]
 str(train2.df)
-train2.df$host_response_rate<-as.numeric(gsub("\\%", "",train2.df$host_response_rate))
-train2.df$length<-as.numeric(train2.df$length)
 ```
-
-
 
 
 set the base
 ```{r}
-train2.df$host_response_time<-as.factor(train2.df$host_response_time)
-train2.df$neighbourhood_group_cleansed<-as.factor(train2.df$neighbourhood_group_cleansed)
-train2.df$property_type<-as.factor(train2.df$property_type)
-train2.df$room_type<-as.factor(train2.df$room_type)
-train2.df$cancellation_policy<-as.factor(train2.df$cancellation_policy)
 train2.df$host_response_time <- relevel(train2.df$host_response_time, ref = "within an hour")
 train2.df$neighbourhood_group_cleansed<- relevel(train2.df$neighbourhood_group_cleansed, ref = "University District")
 train2.df$property_type <- relevel(train2.df$property_type, ref = "Apartment")
 train2.df$room_type<-relevel(train2.df$room_type,ref = "Entire home/apt")
 train2.df$cancellation_policy<-relevel(train2.df$cancellation_policy,ref = "flexible")
 str(train2.df)
-
 ```
 
 transform prediction variable into 0/1
@@ -162,9 +159,6 @@ summary(model)
 
 validation
 ```{r}
-valid2.df$host_response_rate<-as.numeric(gsub("\\%", "",valid2.df$host_response_rate))
-valid2.df$length<-as.numeric(valid2.df$length)
-str(valid2.df)
 library(caret)
 model.pred <- predict(model,valid2.df,type='response')
 pred<-ifelse(model.pred>0.5,"t","f")
