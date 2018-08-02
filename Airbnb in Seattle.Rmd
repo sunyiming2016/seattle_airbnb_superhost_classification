@@ -10,8 +10,6 @@ Data source:https://www.kaggle.com/airbnb/seattle
 If you are interested in becoming an airbnb host in Seattle, you would gain some insights on ways of becoming a "super host" with this analysis. The first part is a word cloud visualization of hosts introduction and the second part is a logistic regression model.
 
 #Data Preparation
-The dataset size is 21MB with 3818 rows. I dropped some unrelevant columns before loading it here.
-
 ```{r}
 library(readr)
 listings <- read_csv('https://raw.githubusercontent.com/sunyiming2016/seattle_airbnb_superhost_classification/master/listings.csv',na='.')
@@ -25,10 +23,9 @@ missmap(listings[-1],col=c('grey','steelblue'),y.cex=0.5,x.cex=0.5)
 
 Remove the rows with missing values
 ```{r}
-listings=subset(listings, host_response_rate!="")
+listings=subset(listings, host_response_rate!="N/A")
 listings=subset(listings, host_about!="")
 listings=subset(listings, bathrooms!="")
-listings=subset(listings, host_is_superhost!="")
 listings=subset(listings, bedrooms!="")
 listings=subset(listings, select=-c(review_scores_rating))
 #it seems that there are lots of missing values for the 'review_scores_rating' variable, and we might run into endogeneity issues to put it into the superhost regression. So we remove this variable here.
