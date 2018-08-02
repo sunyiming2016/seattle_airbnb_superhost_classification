@@ -7,7 +7,8 @@ By Yiming Sun
 
 Data source:https://www.kaggle.com/airbnb/seattle
 
-If you are interested in becoming an airbnb host in Seattle, you would gain some insights on ways of becoming a "super host" with this analysis. The first part is a word cloud visualization of hosts introduction and the second part is a logistic regression model.
+If you are interested in becoming an airbnb host in Seattle, you would gain some insights on what it takes to become a "super host". The first part of the codeis a word cloud visualization of hosts introduction and the second part is a logistic regression model.I summarized these findings and wrote a Linkedin Blog, please feel free to check it here: 
+https://www.linkedin.com/pulse/how-become-airbnb-super-host-seattle-cynthia-yiming-sun/
 
 #Data Preparation
 ```{r}
