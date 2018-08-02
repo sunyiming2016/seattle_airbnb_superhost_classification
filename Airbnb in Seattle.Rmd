@@ -14,7 +14,7 @@ The dataset size is 21MB with 3818 rows. I dropped some unrelevant columns befor
 
 ```{r}
 library(readr)
-listings <- read_csv('/Users/yimingsun/Desktop/r/listings.csv',na='.')
+listings <- read_csv('https://raw.githubusercontent.com/sunyiming2016/seattle_airbnb_superhost_classification/master/listings.csv',na='.')
 ```
 
 check and visualize missing values
