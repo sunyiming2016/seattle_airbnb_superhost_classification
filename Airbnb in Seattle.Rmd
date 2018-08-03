@@ -10,6 +10,7 @@ The project hopes to use data to give Airbnb hosts some fact-supported instructi
 A report blog with insights could be seen here: https://www.linkedin.com/pulse/how-become-airbnb-super-host-seattle-cynthia-yiming-sun/
 
 #Data Preparation
+This datasets have already been partially cleaned by excel( Removed 74 columns and imputed missing value for neighbourhood column)
 ```{r}
 library(readr)
 listings <- read_csv('https://raw.githubusercontent.com/sunyiming2016/seattle_airbnb_superhost_classification/master/listings.csv',na='.')
