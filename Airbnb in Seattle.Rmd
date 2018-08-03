@@ -10,7 +10,7 @@ The project hopes to use data to give Airbnb hosts some fact-supported instructi
 A report blog with insights could be seen here: https://www.linkedin.com/pulse/how-become-airbnb-super-host-seattle-cynthia-yiming-sun/
 
 #Data Preparation
-This datasets have already been partially cleaned by excel( Removed 74 columns and imputed missing value for neighbourhood column)
+This datasets have already been partially cleaned by excel( Removed columns and imputed missing value for neighbourhood column)
 ```{r}
 library(readr)
 listings <- read_csv('https://raw.githubusercontent.com/sunyiming2016/seattle_airbnb_superhost_classification/master/listings.csv',na='.')
@@ -40,49 +40,6 @@ listings %>% ggplot() + geom_bar(aes(host_response_time))
 listings %>% ggplot() + geom_bar(aes(host_is_superhost))
 listings %>% ggplot() + geom_bar(aes(neighbourhood_group_cleansed))
 #all good here
-```
-
-#Before we start explore the ways to become a superhost.Let's visualize the key words of Seattle's airbnb hosts. 
-install packages
-```{r}
-library(tm)
-library(NLP)
-library(wordcloud)
-library(SnowballC)
-```
-
-build a corpus for text mining
-```{r}
-as.character(listings$host_about)
-host=str_replace_all(listings$host_about,"[^[:alpha:]]", " ") 
-corp <- Corpus(VectorSource(host))
-inspect(corp)
-```
-
-clean and pre-process the text data
-```{r}
-corp <- tm_map(corp, removeNumbers)
-corp<- tm_map(corp, removePunctuation)
-corp <- tm_map(corp, stripWhitespace) 
-corp<- tm_map(corp, tolower) #transform into low case
-corp <- tm_map(corp, removeWords, stopwords("english")) 
-corp<- tm_map(corp,removeWords, c("i","we","live","living","seattle","washington","airbnb"))#remove your own stop word
-inspect(corp)
-```
-
-Generate the spreadsheet representation of the documents.
-```{r}
-tdm <- DocumentTermMatrix(corp)
-inspect(tdm)
-```
-
-ready for the word cloud? I saw "love" on the first sight.
-```{r}
-m <- as.matrix(tdm)
-# find out the importance of each term by summing up the tf-idf scores over the corpus
-importance <- data.frame(sort(colSums(m),decreasing=TRUE))
-set.seed(111)
-wordcloud(rownames(importance), importance[,1], max.words=200, random.order=FALSE, rot.per=0.35,colors=brewer.pal(8, "Dark2"))
 ```
 
 ##Let's use logistic regression to explore the key elements of becoming a super host in Seattle
