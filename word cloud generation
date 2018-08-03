@@ -1,0 +1,42 @@
+Let's visualize the key words of Seattle's airbnb hosts. 
+install packages
+```{r}
+library(tm)
+library(NLP)
+library(wordcloud)
+library(SnowballC)
+```
+
+build a corpus for text mining
+```{r}
+as.character(listings$host_about)
+host=str_replace_all(listings$host_about,"[^[:alpha:]]", " ") 
+corp <- Corpus(VectorSource(host))
+inspect(corp)
+```
+
+clean and pre-process the text data
+```{r}
+corp <- tm_map(corp, removeNumbers)
+corp<- tm_map(corp, removePunctuation)
+corp <- tm_map(corp, stripWhitespace) 
+corp<- tm_map(corp, tolower) #transform into low case
+corp <- tm_map(corp, removeWords, stopwords("english")) 
+corp<- tm_map(corp,removeWords, c("i","we","live","living","seattle","washington","airbnb"))#remove your own stop word
+inspect(corp)
+```
+
+Generate the spreadsheet representation of the documents.
+```{r}
+tdm <- DocumentTermMatrix(corp)
+inspect(tdm)
+```
+
+ready for the word cloud? I saw "love" on the first sight.
+```{r}
+m <- as.matrix(tdm)
+# find out the importance of each term by summing up the tf-idf scores over the corpus
+importance <- data.frame(sort(colSums(m),decreasing=TRUE))
+set.seed(111)
+wordcloud(rownames(importance), importance[,1], max.words=200, random.order=FALSE, rot.per=0.35,colors=brewer.pal(8, "Dark2"))
+```
