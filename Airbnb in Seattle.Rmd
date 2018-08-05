@@ -7,7 +7,7 @@ By Yiming Sun
 Data source:https://www.kaggle.com/airbnb/seattle
 
 The project hopes to use data to give Airbnb hosts some fact-supported instructions on how to become a super host in Seattle. The first part of the project is a logistic regression, and the second part is a word cloud visualization of hosts' introductions.
-A report blog with insights could be seen here: https://www.linkedin.com/pulse/how-become-airbnb-super-host-seattle-cynthia-yiming-sun/
+A report blog with insights could be found here: https://www.linkedin.com/pulse/how-become-airbnb-super-host-seattle-cynthia-yiming-sun/
 
 #Data Preparation
 This datasets have already been partially cleaned by excel( Removed columns and imputed missing value for neighbourhood column)
