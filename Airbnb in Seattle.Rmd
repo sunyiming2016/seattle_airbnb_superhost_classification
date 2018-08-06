@@ -127,12 +127,12 @@ install packages
 library(tm)
 library(NLP)
 library(wordcloud)
-library(SnowballC)
 ```
 
 build a corpus for text mining
 ```{r}
 as.character(listings$host_about)
+library(stringr)
 host=str_replace_all(listings$host_about,"[^[:alpha:]]", " ") 
 corp <- Corpus(VectorSource(host))
 inspect(corp)
